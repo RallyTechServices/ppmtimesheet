@@ -1,5 +1,13 @@
 #PPM Timesheet
 
+This app presents a PPM timesheet through an iFrame in Rally.  
+
+A PPM host name or IP address and (optionally) HTTPS port must be configured through the app settings.  
+This app will not be able to serve a timesheet that is only accessible through HTTP protocol.  
+
+![ScreenShot](/images/ppmtimesheet-app-settings.png)
+
+
 ## Development Notes
 
 ### First Load

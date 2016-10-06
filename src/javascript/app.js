@@ -1,11 +1,4 @@
 
-window.onerror = function (message, url, lineNo) {
-    alert('Error: ' + message +
-        '\nUrl: ' + url +
-        '\nLine Number: ' + lineNo);
-    return true;
-};
-
 Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
     extend: 'Rally.app.App',
 
@@ -17,10 +10,9 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
         defaultSettings: {
             ppmHost: null,
             ppmPort: 443
-            //ppmRootUrl: 'https://misna03-232417:8043/'
         }
     },
-
+    autoScroll: false,
     timesheetSuffix:  '/pm/#/timesheets',
 
     launch: function() {
@@ -33,53 +25,41 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
                 failure: this.showAppMessage,
                 scope: this
         });
-
-
-
-
-
     },
     addFrame: function(){
 
         var server = this.getPPMHost(),
-            port = this.getPPMPort();
+            port = this.getPPMPort(),
+            url = this.buildPPMTimesheetURL(server, port);
 
         try {
             this.add({
                 xtype: 'component',
                 autoEl: {
                     tag: 'iframe',
-                    style: 'height: 100%; width: 100%; border: none;overflow:hidden;',
-                    src: this.buildPPMTimesheetURL(server, port),
-                    scrolling: 'no'
+                    style: 'height: 100%; width: 100%; border: none;',
+                    src: url
                 },
                 listeners: {
-                    added: function(){
-                        console.log('added');
-                    },
                     afterrender: function(){
-                        console.log('afterrender');
-                    },
-                    onreadystatechange: function(){
-                        console.log('onreadystatechange');
+                        //console.log('afterrender');
                     },
                     onerrorupdate: function(x){
-                        console.log('onerror', x)
+                        //console.log('onerror', x)
                     },
                     scope: this
                 }
             });
         }
         catch(e){
-            console.log('error', e);
+            Rally.ui.notify.Notifier.showError({message: Ext.String.format("Error loading {0} into iFrame.",url)});
         }
-        console.log('done');
 
     },
     validateConfig: function(server, port){
         var deferred = Ext.create('Deft.Deferred');
 
-        if (!server || !port){
+        if (!server){
             deferred.reject("No PPM Server and Port is configured.  Please work with an administrator to configure your PPM https server.");
         } else {
             //var httpRequest = new XMLHttpRequest(),
@@ -108,7 +88,6 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
         if (port){
             url = Ext.String.format("{0}:{1}", url, port);
         }
-
         return url + this.timesheetSuffix;
     },
     getPPMHost: function(){
@@ -118,7 +97,6 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
         return this.getSetting('ppmPort') || null;
     },
     showAppMessage: function(msg){
-
         this.removeAll();
         this.add({
             xtype: 'container',
