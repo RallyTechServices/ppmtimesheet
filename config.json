@@ -1,0 +1,5 @@
+{
+    "name": "PPM Timesheet",
+    "sdk": "x",
+    "className": "Rally.apps.ppmtimesheet.PPMTimesheetApp"
+}
