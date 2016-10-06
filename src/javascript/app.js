@@ -62,23 +62,25 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
         if (!server){
             deferred.reject("No PPM Server and Port is configured.  Please work with an administrator to configure your PPM https server.");
         } else {
-            //var httpRequest = new XMLHttpRequest(),
-            //    url = this.buildPPMTimesheetURL(server, port);
-            //httpRequest.withCredentials = true;
-            //httpRequest.onreadystatechange = function() {
-            //    console.log('ready', httpRequest.readyState, httpRequest.status);
-            //    if (httpRequest.readyState === 4) {
-            //        if (httpRequest.status !== 200) {
-            //            console.log('Failed', httpRequest.status);
-            //            var msg = Ext.String.format('The PPM Server and Port provided is not responding as expected.  Please verify the configuration in the App Settings.');
-            //            deferred.reject(msg);
-            //        } else {
-                        deferred.resolve();
-            //        }
-            //    }
-            //};
-            //httpRequest.open('GET', url);
-            //httpRequest.send();
+            //Commented this out due to the chrome issue, as this fails on it.
+        //    var httpRequest = new XMLHttpRequest(),
+        //        url = this.buildPPMTimesheetURL(server, port);
+        //    httpRequest.withCredentials = true;
+        //    httpRequest.onreadystatechange = function() {
+        //        console.log('ready', httpRequest.readyState, httpRequest.status);
+        //        if (httpRequest.readyState === 4) {
+        //            if (httpRequest.status !== 200) {
+        //                console.log('Failed', httpRequest.status);
+        //                var msg = Ext.String.format('The PPM Server and Port provided is not responding as expected.  Please verify the configuration in the App Settings.');
+        //                deferred.reject(msg);
+        //            } else {
+        //                deferred.resolve();
+        //            }
+        //        }
+        //    };
+        //    httpRequest.open('GET', url);
+        //    httpRequest.send();
+            deferred.resolve();
         }
 
         return deferred;
