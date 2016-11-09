@@ -38,7 +38,8 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
                 autoEl: {
                     tag: 'iframe',
                     style: 'height: 100%; width: 100%; border: none;',
-                    src: url
+                    src: url,
+                   // sandbox: 'allow-forms allow-scripts'
                 },
                 listeners: {
                     afterrender: function(){
