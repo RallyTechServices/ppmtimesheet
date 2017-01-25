@@ -2,6 +2,8 @@
 Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
     extend: 'Rally.app.App',
 
+    logger: new Rally.technicalservices.Logger(),
+
     mixins: ['Rally.clientmetrics.ClientMetricsRecordable'],
 
     appName: 'PPM Timesheet Frame',
@@ -13,44 +15,41 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
         }
     },
     autoScroll: false,
-    timesheetSuffix:  '/pm/#/timesheets',
+    timesheetSuffix:  '/pm/integration.html#',
 
     launch: function() {
 
         var server = this.getPPMHost(),
             port = this.getPPMPort();
 
-        this.validateConfig(server, port).then({
+         this.validateConfig(server, port).then({
                 success: this.addFrame,
                 failure: this.showAppMessage,
                 scope: this
         });
     },
     addFrame: function(){
-
+        this.logger.log('addFrame');
         var server = this.getPPMHost(),
             port = this.getPPMPort(),
             url = this.buildPPMTimesheetURL(server, port);
 
         try {
-            this.add({
+            var iframe = this.add({
                 xtype: 'component',
+                itemId: 'ppmIframe',
                 autoEl: {
                     tag: 'iframe',
                     style: 'height: 100%; width: 100%; border: none;',
-                    src: url,
-                   // sandbox: 'allow-forms allow-scripts'
-                },
-                listeners: {
-                    afterrender: function(){
-                        //console.log('afterrender');
-                    },
-                    onerrorupdate: function(x){
-                        //console.log('onerror', x)
-                    },
-                    scope: this
+                    src: url
                 }
             });
+
+
+            var me = this;
+            iframe.getEl().dom.onload = function(e){
+                me.logger.log('iframe loaded', e, iframe.getEl().dom);
+            };
         }
         catch(e){
             Rally.ui.notify.Notifier.showError({message: Ext.String.format("Error loading {0} into iFrame.",url)});
@@ -64,24 +63,29 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
             deferred.reject("No PPM Server and Port is configured.  Please work with an administrator to configure your PPM https server.");
         } else {
             //Commented this out due to the chrome issue, as this fails on it.
-        //    var httpRequest = new XMLHttpRequest(),
-        //        url = this.buildPPMTimesheetURL(server, port);
-        //    httpRequest.withCredentials = true;
-        //    httpRequest.onreadystatechange = function() {
-        //        console.log('ready', httpRequest.readyState, httpRequest.status);
-        //        if (httpRequest.readyState === 4) {
-        //            if (httpRequest.status !== 200) {
-        //                console.log('Failed', httpRequest.status);
-        //                var msg = Ext.String.format('The PPM Server and Port provided is not responding as expected.  Please verify the configuration in the App Settings.');
-        //                deferred.reject(msg);
-        //            } else {
-        //                deferred.resolve();
-        //            }
-        //        }
-        //    };
-        //    httpRequest.open('GET', url);
-        //    httpRequest.send();
-            deferred.resolve();
+            //var httpRequest = new XMLHttpRequest(),
+            //    suffix = '/ppm/rest/v1/private/userContext',
+            //url = this.buildPPMTimesheetURL(server, port);
+            //
+            //url = url.replace(this.timesheetSuffix, suffix);
+            //
+            //httpRequest.withCredentials = true;
+            //httpRequest.cors = true;
+            //httpRequest.onreadystatechange = function() {
+            //    console.log('ready', httpRequest.readyState, httpRequest.status);
+            //    if (httpRequest.readyState === 4) {
+            //        console.log('readystate', httpRequest);
+            //        if (httpRequest.status !== 200) {
+            //            console.log('Failed', httpRequest.status);
+            //            var msg = Ext.String.format('The PPM Server and Port provided is not responding as expected.  Please verify the configuration in the App Settings.');
+            //            deferred.reject(msg);
+            //        } else {
+                        deferred.resolve();
+            //        }
+            //    }
+            //};
+            //httpRequest.open('GET', url);
+            //httpRequest.send();
         }
 
         return deferred;
@@ -109,9 +113,13 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
     getSettingsFields: function () {
 
         return [{
+            xtype: 'container',
+            html: '<div class="secondary-message" style="font-family: ProximaNovaBold,Helvetica,Arial;text-align:left;color:#B81B10;font-size:12pt;">NOTE:  The PPM server must be version 15.2 or above.</div>'
+        },{
             name: 'ppmHost',
             xtype: 'rallytextfield',
             width: 400,
+            labelWidth: 100,
             labelAlign: 'right',
             fieldLabel: 'PPM Host name',
             margin: '10 0 10 0',
@@ -123,6 +131,8 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
             xtype:'rallynumberfield',
             labelAlign: 'right',
             fieldLabel: 'Port (HTTPS)',
+            labelWidth: 100,
+            emptyText: 443,
             minValue: 0,
             maxValue: 65535,
             allowBlank: true,
