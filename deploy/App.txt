@@ -3,12 +3,12 @@
 <head>
     <title>PPM Timesheet</title>
     <!--  (c) 2016 CA Technologies.  All Rights Reserved. -->
-    <!--  Build Date: Wed Jan 25 2017 12:21:21 GMT-0700 (MST) -->
+    <!--  Build Date: Wed Jan 25 2017 15:11:40 GMT-0700 (MST) -->
     
     <script type="text/javascript">
-        var APP_BUILD_DATE = "Wed Jan 25 2017 12:21:21 GMT-0700 (MST)";
+        var APP_BUILD_DATE = "Wed Jan 25 2017 15:11:40 GMT-0700 (MST)";
         var BUILDER = "kcorkan";
-        var CHECKSUM = 2581620985;
+        var CHECKSUM = 2752129514;
     </script>
     
     <script type="text/javascript" src="/apps/x/sdk.js"></script>
@@ -240,6 +240,12 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
             url = this.buildPPMTimesheetURL(server, port);
 
         try {
+
+            this.add({
+                xtype: 'container',
+                html: '<div class="secondary-message" style="font-family: ProximaNova,Helvetica,Arial;text-align:center;color:#8a8a8a;font-size:10pt;font-style:italic">Login to PPM through Agile Central is recommended only when using a private computer'
+            });
+
             var iframe = this.add({
                 xtype: 'component',
                 itemId: 'ppmIframe',
