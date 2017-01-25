@@ -35,6 +35,12 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
             url = this.buildPPMTimesheetURL(server, port);
 
         try {
+
+            this.add({
+                xtype: 'container',
+                html: '<div class="secondary-message" style="font-family: ProximaNova,Helvetica,Arial;text-align:center;color:#8a8a8a;font-size:10pt;font-style:italic">Login to PPM through Agile Central is recommended only when using a private computer'
+            });
+
             var iframe = this.add({
                 xtype: 'component',
                 itemId: 'ppmIframe',
