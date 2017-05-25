@@ -216,7 +216,8 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
     config: {
         defaultSettings: {
             ppmHost: null,
-            ppmPort: 443
+            ppmPort: 443,
+            ppmRelativePathWithParams: null
         }
     },
     autoScroll: false,
@@ -226,7 +227,7 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
 
         var server = this.getPPMHost(),
             port = this.getPPMPort();
-
+        
          this.validateConfig(server, port).then({
                 success: this.addFrame,
                 failure: this.showAppMessage,
@@ -237,7 +238,8 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
         this.logger.log('addFrame');
         var server = this.getPPMHost(),
             port = this.getPPMPort(),
-            url = this.buildPPMTimesheetURL(server, port);
+            relativePath = this.getPPMRelativePath(),
+            url = this.buildPPMTimesheetURL(server, port, relativePath);
 
         try {
 
@@ -301,18 +303,29 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
 
         return deferred;
     },
-    buildPPMTimesheetURL: function(server, port){
-        var url = Ext.String.format("https://{0}",server);
+    buildPPMTimesheetURL: function(server, port, relativePath){
+        var url = server.startsWith( "https://" ) ? server : Ext.String.format("https://{0}",server);
         if (port){
             url = Ext.String.format("{0}:{1}", url, port);
         }
-        return url + this.timesheetSuffix;
+        // if relative path is given then either it's SSO environment or default timesheet suffix is not needed
+        if( relativePath ) {
+        	if( !url.endsWith("/") && !relativePath.startsWith("/") ) {
+        		url = url + "/";
+        	} 
+            return url + relativePath;
+        } else {
+            return url + this.timesheetSuffix;        	
+        }
     },
     getPPMHost: function(){
         return this.getSetting('ppmHost') || null;
     },
     getPPMPort: function(){
         return this.getSetting('ppmPort') || null;
+    },
+    getPPMRelativePath: function(){
+        return this.getSetting('ppmRelativePathWithParams') || null;
     },
     showAppMessage: function(msg){
         this.removeAll();
@@ -330,29 +343,41 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
             name: 'ppmHost',
             xtype: 'rallytextfield',
             width: 400,
-            labelWidth: 100,
+            labelWidth: 150,
             labelAlign: 'right',
             fieldLabel: 'PPM Host name',
             margin: '10 0 10 0',
             maskRe:  /[a-zA-Z0-9\.\-]/,
             emptyText: 'Please enter a Host name or IP Address...',
-            maxLength: 255
+            maxLength: 500
         },{
             name: 'ppmPort',
             xtype:'rallynumberfield',
             labelAlign: 'right',
             fieldLabel: 'Port (HTTPS)',
-            labelWidth: 100,
+            labelWidth: 150,
             emptyText: 443,
             minValue: 0,
             maxValue: 65535,
             allowBlank: true,
             allowDecimals: false,
             allowExponential: false
+        },{
+            name: 'ppmRelativePathWithParams',
+            xtype: 'rallytextfield',
+            width: 605,
+            labelWidth: 150,
+            labelAlign: 'right',
+            fieldLabel: 'PPM Host Relative Path (for SSO only)',
+            margin: '10 0 10 0',
+            //maskRe:  /[a-zA-Z0-9\.\-]/,
+            //emptyText: 'In SSO environment, enter relative path with any parameters of IdP initiated SSO PPM URL here and enter host address above ...',
+            emptyText: 'In SSO environment, enter relative path with any parameters of IdP initiated SSO PPM URL here...',
+            maxLength: 500
         }];
     }
 });
-            
+  
                Rally.launchApp('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
                    name: 'PPM Timesheet'
                });
