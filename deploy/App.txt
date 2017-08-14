@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>PPM Timesheet</title>
+    <title>CA PPM Timesheet</title>
     <!--  (c) 2016 CA Technologies.  All Rights Reserved. -->
     <!--  Build Date: Wed Jan 25 2017 15:11:40 GMT-0700 (MST) -->
     
@@ -211,7 +211,7 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
 
     mixins: ['Rally.clientmetrics.ClientMetricsRecordable'],
 
-    appName: 'PPM Timesheet Frame',
+    appName: 'CA PPM Timesheet Frame',
 
     config: {
         defaultSettings: {
@@ -245,7 +245,7 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
 
             this.add({
                 xtype: 'container',
-                html: '<div class="secondary-message" style="font-family: ProximaNova,Helvetica,Arial;text-align:center;color:#8a8a8a;font-size:10pt;font-style:italic">Login to PPM through Agile Central is recommended only when using a private computer'
+                html: '<div class="secondary-message" style="font-family: ProximaNova,Helvetica,Arial;text-align:center;color:#8a8a8a;font-size:10pt;font-style:italic">Login to CA PPM Timesheet through Agile Central is recommended only when using a private computer'
             });
 
             var iframe = this.add({
@@ -273,7 +273,7 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
         var deferred = Ext.create('Deft.Deferred');
 
         if (!server){
-            deferred.reject("No PPM Server and Port is configured.  Please work with an administrator to configure your PPM https server.");
+            deferred.reject("No CA PPM Server and Port is configured.  Please work with an administrator to configure your CA PPM https server.");
         } else {
             //Commented this out due to the chrome issue, as this fails on it.
             //var httpRequest = new XMLHttpRequest(),
@@ -290,7 +290,7 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
             //        console.log('readystate', httpRequest);
             //        if (httpRequest.status !== 200) {
             //            console.log('Failed', httpRequest.status);
-            //            var msg = Ext.String.format('The PPM Server and Port provided is not responding as expected.  Please verify the configuration in the App Settings.');
+            //            var msg = Ext.String.format('The CA PPM Server and Port provided is not responding as expected. Please verify the configuration in the App Settings.');
             //            deferred.reject(msg);
             //        } else {
                         deferred.resolve();
@@ -304,15 +304,20 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
         return deferred;
     },
     buildPPMTimesheetURL: function(server, port, relativePath){
-        var url = server.startsWith( "https://" ) ? server : Ext.String.format("https://{0}",server);
+        var httpsIndex = server.indexOf( "https://" );
+        //var url = server.startsWith( "https://" ) ? server : Ext.String.format("https://{0}",server);
+        var url = httpsIndex == 0 ? server : Ext.String.format("https://{0}",server);
         if (port){
             url = Ext.String.format("{0}:{1}", url, port);
         }
         // if relative path is given then either it's SSO environment or default timesheet suffix is not needed
         if( relativePath ) {
-        	if( !url.endsWith("/") && !relativePath.startsWith("/") ) {
-        		url = url + "/";
-        	} 
+            var urlLastChar = url.charAt(url.length - 1);
+            var rPathFirstChar = relativePath.charAt(0);
+            //if( !urlLastChar.endsWith("/") && !relativePath.startsWith("/") ) {
+            if( urlLastChar != "/" && rPathFirstChar != "/" ) {
+              url = url + "/";
+            } 
             return url + relativePath;
         } else {
             return url + this.timesheetSuffix;        	
@@ -338,14 +343,14 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
 
         return [{
             xtype: 'container',
-            html: '<div class="secondary-message" style="font-family: ProximaNovaBold,Helvetica,Arial;text-align:left;color:#B81B10;font-size:12pt;">NOTE:  The PPM server must be version 15.2 or above.</div>'
+            html: '<div class="secondary-message" style="font-family: ProximaNovaBold,Helvetica,Arial;text-align:left;color:#B81B10;font-size:12pt;">NOTE:  The CA PPM server must be version 15.2 or above.</div>'
         },{
             name: 'ppmHost',
             xtype: 'rallytextfield',
             width: 400,
-            labelWidth: 150,
+            labelWidth: 120,
             labelAlign: 'right',
-            fieldLabel: 'PPM Host name',
+            fieldLabel: 'CA PPM Host Name (For SSO this will be IDP URL)',
             margin: '10 0 10 0',
             maskRe:  /[a-zA-Z0-9\.\-]/,
             emptyText: 'Please enter a Host name or IP Address...',
@@ -354,8 +359,8 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
             name: 'ppmPort',
             xtype:'rallynumberfield',
             labelAlign: 'right',
-            fieldLabel: 'Port (HTTPS)',
-            labelWidth: 150,
+            fieldLabel: 'CA PPM Port (HTTPS)',
+            labelWidth: 120,
             emptyText: 443,
             minValue: 0,
             maxValue: 65535,
@@ -366,20 +371,20 @@ Ext.define('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
             name: 'ppmRelativePathWithParams',
             xtype: 'rallytextfield',
             width: 605,
-            labelWidth: 150,
+            labelWidth: 120,
             labelAlign: 'right',
-            fieldLabel: 'PPM Host Relative Path (for SSO only)',
+            fieldLabel: 'CA PPM Timesheet Path (For SSO only)',
             margin: '10 0 10 0',
             //maskRe:  /[a-zA-Z0-9\.\-]/,
-            //emptyText: 'In SSO environment, enter relative path with any parameters of IdP initiated SSO PPM URL here and enter host address above ...',
-            emptyText: 'In SSO environment, enter relative path with any parameters of IdP initiated SSO PPM URL here...',
+            //emptyText: 'In SSO environment, enter relative path with parameters of IdP initiated SSO CA PPM URL here and enter host address above ...',
+            emptyText: 'In SSO environment, enter relative path with any parameters of IdP initiated SSO CA PPM URL here...',
             maxLength: 500
         }];
     }
 });
   
                Rally.launchApp('Rally.apps.ppmtimesheet.PPMTimesheetApp', {
-                   name: 'PPM Timesheet'
+                   name: 'CA PPM Timesheet'
                });
         });
     </script>
